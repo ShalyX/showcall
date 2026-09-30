@@ -43,7 +43,7 @@ The contract uses `gl.eq_principle.prompt_non_comparative` to interpret public w
 
 ## Add before submitting
 
-- Canonical public repository URL (no Git remote is configured in this workspace yet)
+- Public repository: https://github.com/ShalyX/showcall
 - Recorded product demo (the live app preview is ready)
 - Final UI QA through a wallet against the live preview
 
