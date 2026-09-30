@@ -24,4 +24,3 @@ __pycache__/
 *.compiled.js
 package-lock.json
 *.tsbuildinfo
-
