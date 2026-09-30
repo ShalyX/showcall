@@ -31,6 +31,8 @@ The contract uses `gl.eq_principle.prompt_non_comparative` to interpret public w
 
 ## Live evidence
 
+- Public repository: https://github.com/ShalyX/showcall
+
 - App preview: https://frontend-dpaeo09y2-shalyxs-projects.vercel.app
 - Contract: https://explorer-studio.genlayer.com/address/0x03C0D1E99cc766b9d24b29cC0FE3FD596e29C902
 - Deploy transaction: https://explorer-studio.genlayer.com/tx/0xf27475b45b6568e6653cc7bc4dc13b9b5792f4fb9c608c35f9cfe8fb8bf615cf
@@ -43,7 +45,7 @@ The contract uses `gl.eq_principle.prompt_non_comparative` to interpret public w
 
 ## Add before submitting
 
-- Public repository: https://github.com/ShalyX/showcall
+
 - Recorded product demo (the live app preview is ready)
 - Final UI QA through a wallet against the live preview
 
