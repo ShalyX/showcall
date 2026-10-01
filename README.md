@@ -6,7 +6,7 @@ ShowCall records voluntary event-ticket guarantees and uses a GenLayer Intellige
 
 ## Live deployment
 
-- App preview: https://frontend-dpaeo09y2-shalyxs-projects.vercel.app
+- App preview: https://showcall-genlayer.vercel.app
 - StudioNet contract: [0x03C0D1E99cc766b9d24b29cC0FE3FD596e29C902](https://explorer-studio.genlayer.com/address/0x03C0D1E99cc766b9d24b29cC0FE3FD596e29C902)
 - Deployment transaction: https://explorer-studio.genlayer.com/tx/0xf27475b45b6568e6653cc7bc4dc13b9b5792f4fb9c608c35f9cfe8fb8bf615cf
 
@@ -17,6 +17,12 @@ ShowCall records voluntary event-ticket guarantees and uses a GenLayer Intellige
 **Unavailable-source test on an earlier deployment:** The ticketing event page was inaccessible to GenLayer. The contract caught the fetch failure, finalized the claim as `NEEDS_EVIDENCE`, and stored which source was unavailable: https://explorer-studio.genlayer.com/tx/0x7809b7ceeb1c395ddca18acbc00ba803058a9bc3b77c53eb7748e8a429ee5c85.
 
 **Official-source positive test:** The latest contract finalized the i74 cancellation claim as `REFUND`; the record cites the organizer cancellation press release from 3 March 2026 and its statement that ticket holders would receive refunds: https://explorer-studio.genlayer.com/tx/0x380581ab34949842e60f524998e1a175959f4297956fdcc0338f5b50676ce94e. The test uses a synthetic ticket commitment, not a real ticket.
+
+**Wallet UI QA:** From the connected Chrome wallet on StudioNet, the deployed app registered a synthetic guarantee, opened a cancellation claim using a browser-hashed ticket reference, and finalized the claim as `REFUND` through GenLayer consensus. The claim record is `59e25db7beb7ccd5a7adbd70b847a64afacb4eb263f14bfb535a189bea7a9202`.
+
+- Register guarantee: https://explorer-studio.genlayer.com/tx/0x849c74cea283bb9817cd000019ee86228ed4915f9c00c0ca6e5b3f76bfad8bf1
+- Open cancellation claim: https://explorer-studio.genlayer.com/tx/0xe8cfaa6d4df37a23c60653c7e8f5ac620992ea0e31cdeb9d0311d2a0cccbd612
+- Resolve with GenLayer: https://explorer-studio.genlayer.com/tx/0x3cd4d22ffde6b6d2064e10291cf3d3100247afd82d388a452d69224e5f2610d3
 
 Sources: [Insomnia ticket terms](https://www.insomniagamingfestival.com/event-terms-conditions), [official i74 cancellation announcement](https://www.insomniagamingfestival.com/). The organizer terms say canceled non-LAN tickets are refundable at face value, excluding booking fees; the official i74 announcement confirms the cancellation and refunds.
 
