@@ -16,11 +16,11 @@ ShowCall applies an event organizer’s published ticket guarantee to public eve
 
 Event guarantees are easy to publish and harder to apply consistently when dates, venues, or lineups change. ShowCall stores an organizer’s voluntary guarantee and the public pages that describe the policy and event. A ticket holder can open a claim using a ticket reference that is hashed in the browser before it reaches the contract. GenLayer validators read the published policy, event page, and notice, then record one of five outcomes: refund, credit, replacement, no change, or needs evidence.
 
-The first version records decisions only. It does not send money, verify statutory rights, or prove that a submitted web page belongs to an organizer. The latest contract is deployed to StudioNet and the app is available as a Vercel preview. The latest deployment finalized a verified official-source i74 cancellation claim as `REFUND`. Earlier live checks also confirmed fail-closed `NEEDS_EVIDENCE` outcomes for synthetic and unavailable sources. All test ticket commitments are synthetic and do not represent real ticket purchases or buyer entitlements.
+The first version records decisions only. It does not send money, verify statutory rights, or prove that a submitted web page belongs to an organizer. ShowCall has an existing StudioNet deployment and a Vercel preview; the source-provenance hardening below is implemented in the repository but still needs a new deployment and wallet QA. The earlier deployment finalized an i74 cancellation claim as `REFUND`, but its transaction did not verify domain ownership. All test ticket commitments are synthetic and do not represent real ticket purchases or buyer entitlements.
 
 ## GenLayer use
 
-The contract uses `gl.eq_principle.prompt_non_comparative` to interpret public web evidence against guarantee text fixed in contract state. Validators must converge on the same bounded result before the contract stores it. The page content is treated as untrusted evidence, and unclear or conflicting evidence should produce `NEEDS_EVIDENCE`.
+The current contract source uses `gl.vm.run_nondet_unsafe` with independent leader and validator fetches and assessments. Each run returns the bounded decision plus exact source URLs, fetch status, and SHA-256 fingerprints for the rendered text and reviewed excerpt. State is written only when validators reproduce the decision and every fingerprint. Missing sources return `NEEDS_EVIDENCE`; a changed source snapshot rejects resolution for retry. Source origins remain explicitly unverified: fingerprints identify fetched content but do not prove domain ownership. Page content is treated as untrusted evidence.
 
 ## Demo flow
 
@@ -45,9 +45,15 @@ The contract uses `gl.eq_principle.prompt_non_comparative` to interpret public w
 - Policy: https://www.insomniagamingfestival.com/event-terms-conditions
 - Event details and cancellation notice: https://www.insomniagamingfestival.com/
 
+## Response to requested improvements
+
+The repository now records a per-claim source manifest and requires the leader and validator to independently fetch the same content snapshot before a decision is stored. The UI exposes the fetch result and hashes while labeling every source origin unverified. Focused direct-mode tests cover duplicate event registration, invalid and unissued claims, one-use ticket commitments, source outage, malformed model output, resolution replay, and source drift between leader and validator. The new contract needs a StudioNet deployment and live wallet QA before these protections can be claimed as live.
+
+One limitation remains explicit: issued commitments are public and are not bound to a ticket holder's wallet, so a holder is not authenticated by this prototype. Use synthetic references for demonstration; real-ticket use requires holder authorization.
+
 ## Submission status
 
-Wallet UI QA is complete on StudioNet. The published synthetic guarantee and its cancellation claim resolve to `REFUND`; no real ticket or refund entitlement is implied. The Portal's demo-video field is optional, so the live app and transaction links provide the review path.
+Wallet UI QA is complete for the earlier StudioNet version. The source-provenance hardening is not yet deployed or live-verified; add its new contract address and transaction receipts here after deployment. No real ticket or refund entitlement is implied. The Portal's demo-video field is optional.
 
 Do not describe the local preview or mocked tests as a live GenLayer consensus result.
 Do not describe any synthetic ticket commitment as a real ticket or consumer claim.

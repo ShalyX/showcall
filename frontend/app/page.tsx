@@ -47,6 +47,17 @@ type ClaimRecord = {
   decision: string;
   reason: string;
   evidence?: string;
+  source_manifest?: SourceManifest[];
+};
+
+type SourceManifest = {
+  role: string;
+  url: string;
+  origin_status: "UNVERIFIED";
+  fetch_status: "FETCHED" | "UNAVAILABLE";
+  rendered_text_sha256: string;
+  reviewed_excerpt_sha256: string;
+  reviewed_excerpt_characters: number;
 };
 
 const PREVIEW_EVENT: EventRecord = {
@@ -466,14 +477,14 @@ export default function HomePage() {
 
                   <div className="section-divider"><span>PUBLIC EVIDENCE</span><span>3 SOURCES</span></div>
                   <div className="evidence-list">
-                    <a className="evidence-row" href={activeEvent.policy_url} target="_blank" rel="noreferrer" aria-disabled={!liveMode} onClick={(event) => { if (!liveMode) event.preventDefault(); }}><span className="evidence-icon"><FileText size={15} /></span><span><strong>Guarantee terms</strong><small>{liveMode ? "Organizer-published policy · fixed at event setup" : "Illustrative preview source · not fetched"}</small></span><ExternalLink size={14} /></a>
-                    <a className="evidence-row" href={activeClaim.incident_url} target="_blank" rel="noreferrer" aria-disabled={!liveMode} onClick={(event) => { if (!liveMode) event.preventDefault(); }}><span className="evidence-icon evidence-alert"><Globe2 size={15} /></span><span><strong>Change notice</strong><small>{liveMode ? "Claimant submitted · fetched by validators" : "Illustrative preview source · not fetched"}</small></span><ExternalLink size={14} /></a>
+                    <a className="evidence-row" href={activeEvent.policy_url} target="_blank" rel="noreferrer" aria-disabled={!liveMode} onClick={(event) => { if (!liveMode) event.preventDefault(); }}><span className="evidence-icon"><FileText size={15} /></span><span><strong>Guarantee terms</strong><small>{liveMode ? "Submitted URL · origin unverified" : "Illustrative preview source · not fetched"}</small></span><ExternalLink size={14} /></a>
+                    <a className="evidence-row" href={activeClaim.incident_url} target="_blank" rel="noreferrer" aria-disabled={!liveMode} onClick={(event) => { if (!liveMode) event.preventDefault(); }}><span className="evidence-icon evidence-alert"><Globe2 size={15} /></span><span><strong>Change notice</strong><small>{liveMode ? "Claimant submitted · origin unverified" : "Illustrative preview source · not fetched"}</small></span><ExternalLink size={14} /></a>
                   </div>
 
-                  <div className="guarantee-excerpt"><div className="excerpt-label"><ShieldCheck size={14} /> GUARANTEE SNAPSHOT <span>{liveMode ? "ON-CHAIN" : "PREVIEW"}</span></div><p>“{activeEvent.guarantee}”</p><a href={activeEvent.event_url} target="_blank" rel="noreferrer" aria-disabled={!liveMode} onClick={(event) => { if (!liveMode) event.preventDefault(); }}>{liveMode ? "View event listing" : "Preview source not fetched"} <ExternalLink size={12} /></a></div>
+                  <div className="guarantee-excerpt"><div className="excerpt-label"><ShieldCheck size={14} /> GUARANTEE SNAPSHOT <span>{liveMode ? "ON-CHAIN" : "PREVIEW"}</span></div><p>“{activeEvent.guarantee}”</p><a href={activeEvent.event_url} target="_blank" rel="noreferrer" aria-disabled={!liveMode} onClick={(event) => { if (!liveMode) event.preventDefault(); }}>{liveMode ? "View submitted event URL · origin unverified" : "Preview source not fetched"} <ExternalLink size={12} /></a></div>
 
                   {activeClaim.status === "RESOLVED" ? (
-                    <div className="decision-card"><div className="decision-head"><span className="decision-check"><Check size={15} /></span><div><span>GENLAYER DECISION</span><strong>{activeClaim.decision}</strong></div><span className="decision-chain">{liveMode ? "FINALIZED" : "PREVIEW"}</span></div><p>{activeClaim.reason}</p><small>{activeClaim.evidence}</small></div>
+                    <div className="decision-card"><div className="decision-head"><span className="decision-check"><Check size={15} /></span><div><span>GENLAYER DECISION</span><strong>{activeClaim.decision}</strong></div><span className="decision-chain">{liveMode ? "FINALIZED" : "PREVIEW"}</span></div><p>{activeClaim.reason}</p><small>{activeClaim.evidence}</small>{activeClaim.source_manifest?.length ? <div className="source-manifest"><strong>Resolution source fingerprints</strong>{activeClaim.source_manifest.map((source) => <div className="source-fingerprint" key={source.role}><span>{source.role.replaceAll("_", " ")} · {source.fetch_status.toLowerCase()} · origin unverified</span><code>{source.rendered_text_sha256 ? `SHA-256 ${source.rendered_text_sha256}` : "No content hash: fetch failed"}</code></div>)}</div> : null}</div>
                   ) : (
                     <div className="decision-callout"><div className="callout-copy"><span className="callout-icon"><CircleHelp size={16} /></span><span><strong>Ready for review</strong><small>Validators compare the event notice to the guarantee.</small></span></div><button className="primary-button resolve-button" onClick={() => void resolveClaim()} disabled={Boolean(busy)}>{busy === "resolve" ? <><LoaderCircle size={15} className="spin" /> {liveMode ? "Waiting on consensus" : "Reviewing evidence"}</> : <><FileCheck2 size={15} /> {liveMode ? "Resolve with GenLayer" : "Run preview decision"}</>}</button></div>
                   )}

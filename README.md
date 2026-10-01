@@ -2,7 +2,7 @@
 
 ShowCall records voluntary event-ticket guarantees and uses a GenLayer Intelligent Contract to evaluate claims against the published terms and public event notices.
 
-**Current milestone:** ShowCall is deployed on GenLayer StudioNet with a live Vercel preview. The latest deployment now resolves a verified official-source i74 cancellation claim as `REFUND`. Earlier live checks also confirmed that synthetic or unavailable evidence fails closed as `NEEDS_EVIDENCE`. All test ticket commitments are synthetic; no real ticket purchase or refund claim is implied.
+**Current milestone:** ShowCall has a live StudioNet deployment and Vercel preview. The deployed version completed wallet QA with a synthetic ticket commitment. The current source adds independent source-snapshot verification and on-chain fingerprints; that hardening still needs a new StudioNet deployment and wallet QA before it is live. No real ticket or refund claim is implied.
 
 ## Live deployment
 
@@ -16,7 +16,7 @@ ShowCall records voluntary event-ticket guarantees and uses a GenLayer Intellige
 
 **Unavailable-source test on an earlier deployment:** The ticketing event page was inaccessible to GenLayer. The contract caught the fetch failure, finalized the claim as `NEEDS_EVIDENCE`, and stored which source was unavailable: https://explorer-studio.genlayer.com/tx/0x7809b7ceeb1c395ddca18acbc00ba803058a9bc3b77c53eb7748e8a429ee5c85.
 
-**Official-source positive test:** The latest contract finalized the i74 cancellation claim as `REFUND`; the record cites the organizer cancellation press release from 3 March 2026 and its statement that ticket holders would receive refunds: https://explorer-studio.genlayer.com/tx/0x380581ab34949842e60f524998e1a175959f4297956fdcc0338f5b50676ce94e. The test uses a synthetic ticket commitment, not a real ticket.
+**Positive-source test on the deployed version:** The contract finalized the i74 cancellation claim as `REFUND`; the record cites the submitted cancellation and terms pages: https://explorer-studio.genlayer.com/tx/0x380581ab34949842e60f524998e1a175959f4297956fdcc0338f5b50676ce94e. Those pages identify themselves as organizer sources, but the transaction does not prove domain ownership. The test uses a synthetic ticket commitment, not a real ticket.
 
 **Wallet UI QA:** From the connected Chrome wallet on StudioNet, the deployed app registered a synthetic guarantee, opened a cancellation claim using a browser-hashed ticket reference, and finalized the claim as `REFUND` through GenLayer consensus. The claim record is `59e25db7beb7ccd5a7adbd70b847a64afacb4eb263f14bfb535a189bea7a9202`.
 
@@ -28,7 +28,9 @@ Sources: [Insomnia ticket terms](https://www.insomniagamingfestival.com/event-te
 
 ## Why GenLayer
 
-The contract reads the guarantee page, event page, and claimant-supplied notice inside a non-deterministic block. Validators assess the public evidence against the guarantee that was fixed when the event was registered. The result is bounded to `REFUND`, `CREDIT`, `REPLACEMENT`, `NO_CHANGE`, or `NEEDS_EVIDENCE`, then stored with the claim on-chain.
+The contract reads the guarantee page, event page, and claimant-supplied notice inside a non-deterministic block. Each validator independently fetches the same three submitted URLs, calculates SHA-256 fingerprints for the rendered text and reviewed excerpt, and assesses the bounded result against the guarantee fixed at registration. The contract stores the decision and source manifest only if validators agree on both the decision and all source fingerprints. A source outage returns `NEEDS_EVIDENCE`; differing snapshots reject the resolution so it can be retried.
+
+The source manifest records exact submitted URLs, fetch status, origin-verification status, and rendered-text and reviewed-excerpt hashes. `origin_status` is always `UNVERIFIED`: a hash proves which bytes were fingerprinted, not who controls a domain or whether the URL belongs to the organizer. The UI labels these links accordingly.
 
 The organizer’s guarantee is voluntary. ShowCall does not decide statutory rights, verify legal compliance, or automatically transfer ticket funds. The first version records claim outcomes and keeps the cited evidence discoverable.
 
@@ -69,14 +71,15 @@ genvm-lint check contracts/showcall.py
 pytest tests/direct/ -v
 ```
 
-The direct tests mock web and LLM responses. The live transactions above verify StudioNet page retrieval and consensus for the listed scenarios. The app preview is configured for the live contract; the local preview mode remains illustrative and does not send transactions.
+The 16 direct tests mock web and LLM responses. They cover duplicate registration, invalid and unissued claims, cross-wallet replay attempts, single-use ticket commitments, unavailable and empty sources, malformed and unsupported model output, prompt-injection handling, resolution replay, and rejection when leader and validator observe different source snapshots. They do not replace live consensus tests. The deployed transactions above predate the new source manifest and must not be presented as verifying that hardening. The local preview mode remains illustrative and does not send transactions.
 
 ## Important limitations
 
 - The organizer submits the guarantee text and public URLs; ShowCall does not authenticate event domains or verify that a page belongs to the organizer.
 - The Insomnia verification uses a synthetic ticket commitment and does not establish that a real ticket was purchased or that any particular buyer qualifies for a refund.
 - Ticket commitments are not encrypted. Low-entropy ticket codes can be guessed from their hashes; organizers should use high-entropy references.
-- Public pages can change, disappear, or contain prompt-injection text. The contract treats fetched pages as evidence and directs validators to ignore embedded instructions, but source authenticity and availability still need live QA.
+- Public pages can change, disappear, or contain prompt-injection text. The current source fails closed on unavailable sources and requires an identical fingerprint across leader and validator fetches. It directs validators to ignore embedded instructions, but source authenticity remains unverified.
+- Issued ticket commitments are public and are not bound to a ticket holder's wallet. Anyone who knows an issued commitment could open its first claim. Use synthetic references for demos; real-ticket use requires holder authorization.
 - No refund, credit, or replacement is automatically fulfilled. The contract records the adjudicated outcome only.
 - Preview mode uses an illustrative fixture and a local rule mapping; only live mode invokes GenLayer.
 
